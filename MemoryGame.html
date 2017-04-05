@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style>
+		div#memory_board{
+			background:#FFF;
+			border:#999 0px solid;
+			width:800px;
+			height:540px;
+			padding:24px;
+			margin:0px auto;
+		}
+
+		div#memory_board > div{
+			background: url(MemoryBackground.png) no-repeat;
+			border:#000 1px solid;
+			width:100px;
+			height:100px;
+			float:left;
+			margin:10px;
+			padding:5px;
+			font-size:12px;
+			cursor:pointer;
+			text-align:center;
+			vertical-align:middle;
+		}
+	</style>
+	<script>
+
+		var memory_array = [
+		{tileId: 'A', tileValue:"Matteus 24:14"}, {tileId: 'A', tileValue:"Dessa goda nyheter ska bli predikade över hela den bebodda jorden"},
+		{tileId: 'B', tileValue:"Psalm 37:29"}, {tileId: 'B', tileValue:"De rättfärdiga ska ta jorden i besittning och få njuta av stor frid."}, 
+		{tileId: 'C', tileValue:"Hebreerna 10:24,25"}, {tileId: 'C', tileValue:"...tänka på varandra ... sporra till kärlek och förträffliga gärningar, och låt oss inte försumma att komma tillsammans."}, 
+		{tileId: 'D', tileValue:"Hebreerna 3:4"}, {tileId: 'D', tileValue:"Varje hus byggs ju av någon, men den som har byggt allt är Gud"}, 
+		{tileId: 'E', tileValue:"Uppenbarelseboken 21:4"}, {tileId: 'E', tileValue:"Han ska torka varje tår från deras ögon, och döden ska inte finnas mer, inte heller sorg, skrik eller smärta finnas mer."}, 
+		{tileId: 'F', tileValue:"Apostlagärningarna 15:28, 29"}, {tileId: 'F', tileValue:"... att ni avhåller er från det som är offrat åt avgudar, coh från blod och från köttet av kvävda djur, och från otukt."}, 
+		{tileId: 'G', tileValue:"Johannes 5:28, 29"}, {tileId: 'G', tileValue:"Förundra er inte över detta, ty den stund kommer då alla som är i minnesgravarna ska höra hans röst och komma ut."},
+		{tileId: 'H', tileValue:"Matteus 28:19, 20"}, {tileId: 'H', tileValue:"Gå därför och gör lärjungar av alla nationerna, döp dem i faderns och sonens och den heliga andens namn."},
+		{tileId: 'I', tileValue:"Kolosserna 1:15"}, {tileId: 'I', tileValue:"Han är den osynlige Gudens avbild, den förstfödde av all skapelse"},
+		{tileId: 'J', tileValue:"1 Korintierna 15:33"}, {tileId: 'J', tileValue:"Bli inte vilseledda, dåligt umgänge fördärvar nyttiga vanor."}
+		];
+		
+		var memory_values = [];
+		var memory_tile_ids = [];
+		var tiles_flipped = 0;
+		var current_player = 1;
+		var player1_score = 0;
+		var player2_score = 0;
+
+		Array.prototype.memory_tile_shuffle = function(){
+			var i = this.length, j, temp;
+			while(--i > 0){
+				j = Math.floor(Math.random() * (i+1));
+				temp = this[j];
+				this[j] = this[i];
+				this[i] = temp;
+			}
+		}
+
+		function newBoard(){
+			tiles_flipped = 0;
+			var output = '';
+			memory_array.memory_tile_shuffle();
+			for(var i = 0; i < memory_array.length; i++){
+
+				output += '<div id="tile_'+i+'" onclick="memoryFlipTile(this,\''+memory_array[i].tileValue+'\', \''+ memory_array[i].tileId+'\')"></div>';
+			}
+			document.getElementById('memory_board').innerHTML = output;
+		}
+
+		function memoryFlipTile(tile, tileText, tileId){
+			if(tile.innerHTML == "" && memory_values.length < 2){
+				if (current_player == 1)
+					tile.style.background = '#2196F3';
+				else
+					tile.style.background = '#4CAF50';
+				tile.innerHTML = tileText;
+				if(memory_values.length == 0){
+					memory_values.push(tileId);
+					memory_tile_ids.push(tile.id);
+				} else if(memory_values.length == 1){
+					memory_values.push(tileId);
+					memory_tile_ids.push(tile.id);
+					if(memory_values[0] == memory_values[1]){
+						tiles_flipped += 2;
+				// Clear both arrays
+				memory_values = [];
+				memory_tile_ids = [];
+				if (current_player == 1)
+					player1_score += 1;
+				else
+					player2_score += 1;
+				updateScore();
+
+				// Check to see if the whole board is cleared
+				if(tiles_flipped == memory_array.length){
+					alert("Board cleared... generating new board");
+					document.getElementById('memory_board').innerHTML = "";
+					newBoard();
+					updateScore();
+				}
+			} else {
+				if (current_player == 1)
+					current_player = 2;
+				else
+					current_player = 1;
+
+
+				function flip2Back(){
+				    // Flip the 2 tiles back over
+				    var tile_1 = document.getElementById(memory_tile_ids[0]);
+				    var tile_2 = document.getElementById(memory_tile_ids[1]);
+				    tile_1.style.background = 'url(MemoryBackground.png) no-repeat';
+				    tile_1.innerHTML = "";
+				    tile_2.style.background = 'url(MemoryBackground.png) no-repeat';
+				    tile_2.innerHTML = "";
+				    // Clear both arrays
+				    memory_values = [];
+				    memory_tile_ids = [];
+				    updateScore();
+				}
+				setTimeout(flip2Back, 2000);
+			}
+		}
+
+		function updateScore() {
+			document.getElementById('playerinfo').innerHTML = '<h3>Current player: ' + current_player +'<br>Player 1 score: ' + player1_score + '<br>Player 2 score: ' + player2_score+ '</h3>';
+		}
+	}
+}
+</script>
+</head>
+<body>
+	<div id="playerinfo"><h3>Current player: 1<br>Player 1 score: 0<br>Player 2 score: 0</h3> </div>
+
+	<div id="memory_board"></div>
+	<script>newBoard();</script>
+</body>
+</html>
